@@ -1,0 +1,24 @@
+{
+    "name": "php-sword/webman-jsonrpc",
+    "description": "JsonRpc for webman plugin",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Kyour",
+            "email": "kyour@vip.qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "workerman/webman-framework": "^1.5.0"
+    },
+    "require-dev": {
+        "workerman/webman": "^1.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "sword\\JsonRpc\\": "src"
+        }
+    }
+}
