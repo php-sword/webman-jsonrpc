@@ -48,7 +48,8 @@ class Websocket implements ClientDriverInterface
         // 当收到消息时
         $this->client->onMessage = function(AsyncTcpConnection $con, $data) {
             if(!is_null($this->onMessageCallback)) {
-                $this->onMessageCallback($data);
+                $callbackFunc = $this->onMessageCallback;
+                $callbackFunc($data);
             }
         };
 
@@ -58,7 +59,8 @@ class Websocket implements ClientDriverInterface
             $this->isConnected = false;
 
             if(!is_null($this->onCloseCallback)) {
-                $this->onCloseCallback($connection);
+                $callbackFunc = $this->onCloseCallback;
+                $callbackFunc($connection);
             }
 
             // 如果连接断开，1秒后重连
