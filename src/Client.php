@@ -90,6 +90,8 @@ class Client extends \Channel\Server
 
         $response = null;
 
+        ChannelClient::connect('127.0.0.1', 2207);
+
         if(!is_null($id)){
             $request['id'] = $id;
 
