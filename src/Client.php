@@ -40,7 +40,7 @@ class Client extends \Channel\Server
         if($protocol == 'ws'){
             $clientObj = new Websocket();
         }else{
-            throw new JsonRpcException('协议暂不支持');
+            throw new JsonRpcException('协议暂不支持:'. $protocol . '://');
         }
 
         $clientObj->onMessage(function ($data) {
