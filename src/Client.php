@@ -24,7 +24,7 @@ class Client extends \Channel\Server
         $this->_worker = $worker;
         $worker->channels = [];
 
-        $config = config('plugin.sword.jsonrpc.app.RpcClient');
+        $config = config('plugin.sword.jsonrpc.process.client');
 
         $connect = $config['connect'];
 
