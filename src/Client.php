@@ -37,7 +37,7 @@ class Client extends \Channel\Server
         $clientObj = null;
 
         // 根据协议创建客户端对象
-        if($protocol == 'websocket'){
+        if($protocol == 'ws'){
             $clientObj = new Websocket();
         }else{
             throw new JsonRpcException('协议暂不支持');
