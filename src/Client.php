@@ -2,9 +2,10 @@
 
 namespace sword\JsonRpc;
 
+use sword\JsonRpc\Contract\ClientDriverInterface;
+use sword\JsonRpc\Driver\Client\Websocket;
 use sword\JsonRpc\Exception\JsonRpcException;
 use Throwable;
-use Workerman\Connection\AsyncTcpConnection;
 
 class Client extends \Channel\Server
 {
@@ -30,32 +31,42 @@ class Client extends \Channel\Server
         //获取协议
         $protocol = substr($connect, 0, strpos($connect, '://'));
 
+        /**
+         * @var ClientDriverInterface $clientObj 客户端对象
+         */
+        $clientObj = null;
+
+        // 根据协议创建客户端对象
         if($protocol == 'websocket'){
-            //连接rpc服务端
-            $con = new AsyncTcpConnection($connect);
-
-            // websocket握手成功后
-            $con->onWebSocketConnect = function(AsyncTcpConnection $con) {
-            };
-
-            // 当收到消息时
-            $con->onMessage = function(AsyncTcpConnection $con, $data) {
-                echo $data;
-            };
-
-            $con->connect();
+            $clientObj = new Websocket();
         }else{
-            throw new JsonRpcException('协议不支持');
+            throw new JsonRpcException('协议暂不支持');
         }
+
+        $clientObj->onMessage(function ($data) {
+            //解析请求数据
+            $response = json_decode($data, true);
+
+            //获取请求id
+            $id = $response['id']??null;
+            if (is_null($id)) {
+                echo "rpc client: response id is null\n{$data}\n";
+                return;
+            }
+
+            //发布响应
+            ChannelClient::publish('rpcResponse:'. $id, $data);
+        });
+
+        $clientObj->connect($connect);
 
         //订阅通道
         ChannelClient::connect('127.0.0.1', 2207);
 
         // 订阅rpc客户端请求的通道
-        ChannelClient::on('rpc_request', function($event_data) {
-            //解析请求数据
-//            $request = json_decode($event_data, true);
-            var_dump($event_data);
+        ChannelClient::on('rpcRequest', function($event_data) use ($clientObj){
+            // 发送数据到 rpc 服务端
+            $clientObj->send($event_data);
         });
 
     }
@@ -93,9 +104,9 @@ class Client extends \Channel\Server
         }
 
         // 发送数据到 rpc 服务端
-        ChannelClient::publish('rpc_request', $request);
+        ChannelClient::publish('rpcRequest', json_encode($request, JSON_UNESCAPED_UNICODE));
 
-        // 等待 rpc 服务端返回数据 ，并设置超时时间为 5 秒
+        // 等待 rpc 服务端返回数据 ，并设置超时时间
         $start_time = time();
         while (is_null($response) && time() - $start_time < $timeout) {
             usleep(20);

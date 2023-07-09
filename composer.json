@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=7.4",
+        "ext-json": "*",
         "workerman/webman-framework": "^1.5.0",
         "workerman/channel": "^1.1"
     },
